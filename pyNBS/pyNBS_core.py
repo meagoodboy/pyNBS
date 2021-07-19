@@ -75,9 +75,9 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
     Nsample = round(Nind*pats_subsample_p)
     Dsample = round(Dfeat*gene_subsample_p)
     # Sub sample patients
-    pats_subsample = random.sample(sm_mat.index, int(Nsample))
+    pats_subsample = random.sample(sorted(sm_mat.index), int(Nsample))
     # Sub sample genes
-    gene_subsample = random.sample(sm_mat.columns, int(Dsample))
+    gene_subsample = random.sample(sorted(sm_mat.columns), int(Dsample))
     # Sub sampled data mat
     gind_sample = sm_mat.loc[pats_subsample][gene_subsample]
     # Filter by mutation count
@@ -89,7 +89,8 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
         if len(set(list(propNet.nodes)).intersection(set(sm_mat.columns))) == 0:
             raise ValueError(
                 'No mutations found in network nodes. Gene names may be mismatched.')
-        gind_sample_filt = gind_sample.T.loc[list(propNet.nodes)].fillna(0).T
+        intersected_nodes = list(set(list(propNet.nodes)).intersection(set(gind_sample.index)))
+        gind_sample_filt = gind_sample.T.loc[intersected_nodes].fillna(0).T
     else:
         gind_sample_filt = gind_sample
     return gind_sample_filt
