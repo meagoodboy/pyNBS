@@ -99,7 +99,7 @@ def network_kernel_propagation(network, network_kernel, binary_matrix, verbose=F
     # Get propagated results for remaining subgraphs
     for nodelist in subgraph_nodelists[1:]:
         subgraph_nodes = list(nodelist)
-        prop_nodelist = prop_nodelist + subgraph_nodes
+        prop_nodelist = list(prop_nodelist + subgraph_nodes)
         subgraph_prop_data = np.dot(binary_matrix.T.loc[subgraph_nodes].fillna(0).T, 
                                     network_kernel.loc[subgraph_nodes][subgraph_nodes])
         prop_data = np.concatenate((prop_data, subgraph_prop_data), axis=1)
