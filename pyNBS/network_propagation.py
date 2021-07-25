@@ -94,8 +94,14 @@ def network_kernel_propagation(network, network_kernel, binary_matrix, verbose=F
     subgraph_nodelists = list(nx.connected_components(network))
     # Initialize propagation results by propagating first subgraph
     prop_nodelist = list(subgraph_nodelists[0])
-    prop_data = np.dot(binary_matrix.T.loc[prop_nodelist].fillna(0).T, 
-                       network_kernel.loc[prop_nodelist][prop_nodelist])
+    # print(len(prop_nodelist))
+    diff_col = list(set(prop_nodelist) - set(binary_matrix.columns))
+    # print(diff_col)
+    # print(len(diff_col))
+    binary_matrix_copy = pd.concat([binary_matrix, pd.DataFrame(columns = diff_col)]).fillna(0)
+    # print(binary_matrix_copy)
+    # common_nodelist
+    prop_data = np.dot(binary_matrix_copy,network_kernel.loc[prop_nodelist][prop_nodelist])
     # Get propagated results for remaining subgraphs
     for nodelist in subgraph_nodelists[1:]:
         subgraph_nodes = list(nodelist)

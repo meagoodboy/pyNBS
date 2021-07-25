@@ -71,6 +71,7 @@ def network_inf_KNN_glap(network, gamma=0.01, kn=11, verbose=True, **save_args):
 
 def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_p=0.8, min_muts=10):
     # Number of indiv/features for sampling
+    # print(sm_mat)
     (Nind, Dfeat) = sm_mat.shape
     Nsample = round(Nind*pats_subsample_p)
     Dsample = round(Dfeat*gene_subsample_p)
@@ -81,18 +82,24 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
     # Sub sampled data mat
     gind_sample = sm_mat.loc[pats_subsample][gene_subsample]
     # Filter by mutation count
+    # print(gind_sample)
     gind_sample = gind_sample[gind_sample.sum(axis=1) > min_muts]
     # Filter columns by network nodes only if network is given
+    # print(gind_sample)
     if propNet is not None:
+        # print("yes")
         # Check if network node names intersect with somatic mutation matrix column names
         # If there is no intersection, throw an error, gene names are not matched
         if len(set(list(propNet.nodes)).intersection(set(sm_mat.columns))) == 0:
             raise ValueError(
                 'No mutations found in network nodes. Gene names may be mismatched.')
-        intersected_nodes = list(set(list(propNet.nodes)).intersection(set(gind_sample.index)))
+        # print(gind_sample)
+        intersected_nodes = list(set(list(propNet.nodes)).intersection(set(gind_sample.columns)))
+        # print(intersected_nodes,"lol")
         gind_sample_filt = gind_sample.T.loc[intersected_nodes].fillna(0).T
     else:
         gind_sample_filt = gind_sample
+    # print(gind_sample_filt)
     return gind_sample_filt
 
 # Function to quantile normalize a pandas DataFrame
