@@ -34,12 +34,13 @@ def consensus_hclust_hard(Hlist, k=3, hclust_linkage_method='average',
 
     # Calculate patient similarities and linkage
     for H in Hlist:
-        H.columns = range(1,len(H.columns)+1)
+        H.columns = range(0,len(H.columns))
         # Update patient cluster count
         cluster_count.loc[H.index, H.index]+=1
         # Get cluster assignment for each patient
         cluster_assign = {i:[] for i in H.columns}
         for pat in H.index:
+            print(np.argmax(H.loc[pat]))
             cluster_assign[np.argmax(H.loc[pat])].append(pat)
         # Update co-clustering matrix with each cluster assignment
         for cluster in cluster_assign:
