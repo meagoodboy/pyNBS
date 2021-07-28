@@ -96,17 +96,20 @@ def network_kernel_propagation(network, network_kernel, binary_matrix, verbose=F
     prop_nodelist = list(subgraph_nodelists[0])
     # print(len(prop_nodelist))
     diff_col = list(set(prop_nodelist) - set(binary_matrix.columns))
-    # print(diff_col)
+    # print(len(diff_col))
     # print(len(diff_col))
     binary_matrix_copy = pd.concat([binary_matrix, pd.DataFrame(columns = diff_col)]).fillna(0)
-    # print(binary_matrix_copy)
-    # common_nodelist
-    prop_data = np.dot(binary_matrix_copy,network_kernel.loc[prop_nodelist][prop_nodelist])
+    # print(len(binary_matrix_copy))
+    # print(len(network_kernel))
+    # common_nodelist = binary_matrix_copy[prop_]
+    prop_data = np.dot(binary_matrix_copy[prop_nodelist],network_kernel.loc[prop_nodelist][prop_nodelist])
     # Get propagated results for remaining subgraphs
     for nodelist in subgraph_nodelists[1:]:
         subgraph_nodes = list(nodelist)
         prop_nodelist = list(prop_nodelist + subgraph_nodes)
-        subgraph_prop_data = np.dot(binary_matrix.T.loc[subgraph_nodes].fillna(0).T, 
+        diff_col2 = list(set(subgraph_nodes) - set(binary_matrix.columns))
+        binary_matrix_copy2 = pd.concat([binary_matrix, pd.DataFrame(columns = diff_col2)]).fillna(0)
+        subgraph_prop_data = np.dot(binary_matrix_copy2[subgraph_nodes], 
                                     network_kernel.loc[subgraph_nodes][subgraph_nodes])
         prop_data = np.concatenate((prop_data, subgraph_prop_data), axis=1)
     # Return propagated result as dataframe
