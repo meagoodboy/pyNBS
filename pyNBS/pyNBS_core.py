@@ -94,7 +94,8 @@ def subsample_sm_mat(sm_mat, propNet=None, pats_subsample_p=0.8, gene_subsample_
             raise ValueError(
                 'No mutations found in network nodes. Gene names may be mismatched.')
         # print(gind_sample)
-        intersected_nodes = list(set(list(propNet.nodes)).intersection(set(gind_sample.columns)))
+        intersected_nodes = list(
+            set(list(propNet.nodes)).intersection(set(gind_sample.columns)))
         # print(intersected_nodes,"lol")
         gind_sample_filt = gind_sample.T.loc[intersected_nodes].fillna(0).T
     else:
@@ -140,7 +141,7 @@ def qnorm(data):
 # verbose = print(statements on update progress)
 
 
-def mixed_netNMF(data, KNN_glap, k=3, l=200, maxiter=250,
+def mixed_netNMF(data, KNN_glap=None, k=3, l=200, maxiter=250,
                  eps=1e-15, err_tol=1e-4, err_delta_tol=1e-8, verbose=False):
     # Initialize H and W Matrices from data array if not given
     r, c = data.shape[0], data.shape[1]
@@ -156,10 +157,11 @@ def mixed_netNMF(data, KNN_glap, k=3, l=200, maxiter=250,
         print('W and H matrices initialized')
 
     # Get graph matrices from laplacian array
-    D = np.diag(np.diag(KNN_glap)).astype(float)
-    A = (D-KNN_glap).astype(float)
-    if verbose:
-        print('D and A matrices calculated')
+    if KNN_glap is not None:
+        D = np.diag(np.diag(KNN_glap)).astype(float)
+        A = (D-KNN_glap).astype(float)
+        if verbose:
+            print('D and A matrices calculated')
     # Set mixed netNMF reconstruction error convergence factor
     XfitPrevious = np.inf
 
@@ -198,12 +200,14 @@ def mixed_netNMF(data, KNN_glap, k=3, l=200, maxiter=250,
         # be changed by the user if so desired.
 
         # Terms to be scaled by regularization constant: l
-        KWmat_D = np.dot(D, W)
-        KWmat_W = np.dot(A, W)
+        if KNN_glap is not None:
+            KWmat_D = np.dot(D, W)
+            KWmat_W = np.dot(A, W)
 
-        # Update W with network constraint
-        W = W*((np.dot(data, H.T) + l*KWmat_W + eps) /
-               (np.dot(W, np.dot(H, H.T)) + l*KWmat_D + eps))
+            # Update W with network constraint
+            W = W*((np.dot(data, H.T) + l*KWmat_W + eps) /
+                   (np.dot(W, np.dot(H, H.T)) + l*KWmat_D + eps))
+
         W = np.maximum(W, eps)
         # Normalize W across each gene (row-wise)
         W = W/matlib.repmat(np.maximum(sum(W), eps), len(W), 1)
